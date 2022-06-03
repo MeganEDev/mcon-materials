@@ -82,6 +82,19 @@ struct SymbolListView: View {
           Text(lastErrorMessage)
         })
         .padding(.horizontal)
+        .task {
+          guard symbols.isEmpty else { return }
+          
+          do {
+            symbols = try await model.availableSymbols()
+          } catch {
+            if let error = error as? URLError,
+               error.code == .cancelled {
+              return
+            }
+            lastErrorMessage = error.localizedDescription
+          }
+        }
       }
     }
   }
